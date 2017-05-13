@@ -5,8 +5,6 @@ import com.mysql.jdbc.CallableStatement;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -65,8 +63,8 @@ public class DAOServices {
             }
         }
     }
-    
-public void blockUser(User user) {
+
+    public void blockUser(User user) {
         int founded = 0;
         try {
             connect();
@@ -87,30 +85,75 @@ public void blockUser(User user) {
             }
         }
     }
- public List<User> getUser(){
-        
-        List<User> UserList = new ArrayList<>();
+
+    public void unBlockUser(User user) {
+        int founded = 0;
         try {
             connect();
-            String sqlQuery = "select * from users";
-            preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
+            String query = "update users set status = 1 where username = ?";
+            preparedStatement = (PreparedStatement) connection.prepareStatement(query);
+            preparedStatement.setString(1, user.getUsername());
             resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
-               User user = new User(resultSet.getLong("id"),resultSet.getString("username"),
-               resultSet.getString("password"),resultSet.getString("email"),resultSet.getString("fullname"),
-               resultSet.getDate("registered"),resultSet.getDate("last_login"),resultSet.getBoolean("status"),
-               resultSet.getInt("attempts"));
-               UserList.add(user);
+            if (resultSet.next()) {
+                founded = resultSet.getInt(1);
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace(System.err);
-        }finally{
+        } finally {
             try {
                 disconnect();
             } catch (SQLException e) {
                 e.printStackTrace(System.err);
             }
         }
-        return UserList;
+    }
+
+    public User getUser(User user) {
+
+        try {
+            connect();
+            String sqlQuery = "select * from users u where u.username = ?";
+            preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, user.getUsername());
+            resultSet = preparedStatement.executeQuery();
+            user = null;
+            while (resultSet.next()) {
+                user = new User(resultSet.getLong(1), resultSet.getString(2),
+                        resultSet.getString(3), resultSet.getString(4), resultSet.getString(5),
+                        resultSet.getDate(6), resultSet.getDate(7), resultSet.getInt(8) == 1,
+                        resultSet.getInt(9));
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace(System.err);
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+        return user;
+    }
+
+    public void registerUser(User user) {
+        try {
+            connect();
+            String sqlQuery = "INSERT INTO users (usersname,password,email,fullname,"
+                    + "registered,status,attempts) VALUES (?,?,?,?,?,sysdate(),1,0);";
+            preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getFullname());
+            preparedStatement.execute();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace(System.err);
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                e.printStackTrace(System.err);
+            }
+        }
     }
 }
