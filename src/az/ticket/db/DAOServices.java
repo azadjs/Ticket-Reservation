@@ -20,7 +20,7 @@ public class DAOServices {
     private ResultSet resultSet;
 
     private void connect() throws ClassNotFoundException, SQLException {
-        String driverName = "com.jdbc.mysql.Driver";
+        String driverName = "com.mysql.jdbc.Driver";
         String user = "root";
         String password = "root";
         String url = "jdbc:mysql://localhost:3306/ticket_db";
@@ -89,7 +89,7 @@ public void blockUser(User user) {
     }
  public List<User> getUser(){
         
-        List<User> getUser = new ArrayList<>();
+        List<User> UserList = new ArrayList<>();
         try {
             connect();
             String sqlQuery = "select * from users";
@@ -100,7 +100,7 @@ public void blockUser(User user) {
                resultSet.getString("password"),resultSet.getString("email"),resultSet.getString("fullname"),
                resultSet.getDate("registered"),resultSet.getDate("last_login"),resultSet.getBoolean("status"),
                resultSet.getInt("attempts"));
-               getUser.add(user);
+               UserList.add(user);
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace(System.err);
@@ -111,6 +111,6 @@ public void blockUser(User user) {
                 e.printStackTrace(System.err);
             }
         }
-        return getUser;
+        return UserList;
     }
 }
