@@ -139,13 +139,54 @@ public class DAOServices {
         try {
             connect();
             String sqlQuery = "INSERT INTO users (usersname,password,email,fullname,"
-                    + "registered,status,attempts) VALUES (?,?,?,?,?,sysdate(),1,0);";
+                    + "registered,status,attempts) VALUES (?,?,?,?,sysdate(),1,0)";
             preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getEmail());
             preparedStatement.setString(4, user.getFullname());
             preparedStatement.execute();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace(System.err);
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+    }
+
+    public void deleteUser(User user) {
+        try {
+            connect();
+            String sqlQuery = "delete from users where username = ?";
+            preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.execute();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace(System.err);
+        } finally {
+            try {
+                disconnect();
+            } catch (SQLException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+    }
+
+    public void updateUser(User user) {
+        try {
+            connect();
+            String sqlQuery = "update users set username = ?,password = ?,email = ?"
+                    + ",fullname = ? where id = ?";
+            preparedStatement = (PreparedStatement) connection.prepareStatement(sqlQuery);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getFullname());
+            preparedStatement.setLong(5, user.getUserId());
+            preparedStatement.executeUpdate();
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace(System.err);
         } finally {
